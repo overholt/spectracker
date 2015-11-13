@@ -3,9 +3,9 @@ function getCommits(repo, since, until) {
   commitsQuery = "commits?";
   commitsQuery += "since=" + since;
   commitsQuery += "&until=" + until;
-  
+
   queryURL = repoURL + commitsQuery;
-  
+
   return fetch(queryURL).then(function(response) {
     return response.json();
   }).catch(function(err) {
@@ -13,12 +13,13 @@ function getCommits(repo, since, until) {
   });
 }
 
-function getBugs(commitURL) {
+function getMozBugs(commitURL) {
   mozBugzilla = "https://bugzilla.mozilla.org/";
   whiteboardQuery = "rest/bug?status_whiteboard";
-  
+
+  // FIXME: just use the commit's hash?
   queryString = whiteboardQuery + "=" + commitURL;
-  
+
   return fetch(mozBugzilla + queryString).then(function(response) {
     return response.json();
   }).catch(function(err) {
@@ -26,24 +27,42 @@ function getBugs(commitURL) {
   });
 }
 
+// associate commits and associated bugs?
 function processCommits(commits) {
+  // FIXME: Promise.all, maybe?
+  // http://i.imgur.com/Sa1Xoeb.jpg
   for (var commit of commits) {
-    // var bugPromise = getBugs(commit.html_url);
+    // var bugPromise = getMozBugs(commit.html_url);
     console.log("Before bugPromise resolves: " + commit.sha);
     // bugPromise.then(function(bugs) {
-    //   console.log("After bugPromise resolves: " + commit.sha + "bugs.length = " + bugs.length);
-      // if (bugs.length > 0) {
-      //   for (var bug of bugs) {
-      //     console.log("Bug for " + commit.sha + bug.id);
-      //   }       
-      // } else {
-      //   console.log("No bugs for " + commit.sha);
-      // }
-    }
+    //   console.log("After bugPromise resolves: " +
+    //     commit.sha + "bugs.length = " + bugs.length);
+    // if (bugs.length > 0) {
+    //   for (var bug of bugs) {
+    //     console.log("Bug for " + commit.sha + bug.id);
+    //   }       
+    // } else {
+    //   console.log("No bugs for " + commit.sha);
+    // }
   }
+}
 
-// do some sort of Promise.all?
-// associate commits and associated bugs?
+function addCommitsToPage(commits) {
+  var commitsTable = document.getElementById("commitsTable");
+  for (var commit of commits) {
+    var newRow = commitsTable.insertRow();
+    var newCell = newRow.insertCell();
+    var commitLink = document.createElement("a");
+    var commitText = commit.commit.message.substring(0, 50) + " ...";
+    var linkText = document.createTextNode(commitText);
+    commitLink.appendChild(linkText);
+    commitLink.title = linkText;
+    commitLink.href = commit.html_url;
+    newCell.appendChild(commitLink);
+  }
+}
 
-var commitPromise = getCommits("whatwg/html", "2015-10-01", "2015-11-12");
-commitPromise.then(function(commits){processCommits(commits)});
+function fetchCommits() {
+  var commitPromise = getCommits("whatwg/html", "2015-10-01", "2015-11-12");
+  commitPromise.then(function(commits){addCommitsToPage(commits)});
+}
