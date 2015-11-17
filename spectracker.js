@@ -49,12 +49,15 @@ function processCommits(commits) {
 
 function addCommitsToPage(commits) {
   var commitsTable = document.getElementById("commitsTable");
+  var numRows = commitsTable.rows.length;
+  for (var rowNum = 0; rowNum < numRows; rowNum++) {
+    commitsTable.deleteRow(0);
+  }
   for (var commit of commits) {
     var newRow = commitsTable.insertRow();
     var newCell = newRow.insertCell();
     var commitLink = document.createElement("a");
-    var commitText = commit.commit.message.substring(0, 50) + " ...";
-    var linkText = document.createTextNode(commitText);
+    var linkText = document.createTextNode(commit.commit.message);
     commitLink.appendChild(linkText);
     commitLink.title = linkText;
     commitLink.href = commit.html_url;
@@ -62,7 +65,10 @@ function addCommitsToPage(commits) {
   }
 }
 
-function fetchCommits() {
-  var commitPromise = getCommits("whatwg/html", "2015-10-01", "2015-11-12");
+function specChangeHandler(event) {
+  console.log(event);
+  var chosenSpec = "whatwg/" + event.target.value;
+  console.log("chosenSpec = " + chosenSpec);
+  var commitPromise = getCommits(chosenSpec, "2015-10-01", "2015-11-12");
   commitPromise.then(function(commits){addCommitsToPage(commits)});
 }

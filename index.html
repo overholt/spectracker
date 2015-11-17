@@ -6,12 +6,13 @@
 </head>
 <body>
 
-  <input type="button" id="fetchCommitsButton" onclick="fetchCommits();" value="Fetch commits"/>
+  <select name="spec" onchange="specChangeHandler(event);">
+    <option value="---" selected>---</option>
+    <option value="html">HTML</option>
+    <option value="fetch">Fetch</option>
+  </select>
 
-  <table id="commitsTable">
-    <th>Commit</th>
-    <th>Bug(s)</th>
-  </table>
+  <table id="commitsTable"></table>
 
   <script type="text/javascript" src="spectracker.js">
   </script>
