@@ -1,3 +1,28 @@
+window.onload=function(){
+  populateDateDropdowns();
+}
+
+function populateDateDropdowns() {
+  var startDate = document.getElementById("datestart");
+  var endDate = document.getElementById("dateend");
+
+  var oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  var startOption = document.createElement("option");
+  var startString = oneWeekAgo.toISOString().substr(0,10);
+  startOption.text = startString;
+  startOption.value = startString;
+
+  var endOption = document.createElement("option");
+  var endString = new Date().toISOString().substr(0,10);
+  endOption.text = endString;
+  endOption.value = endString;
+
+  startDate.appendChild(startOption);
+  endDate.appendChild(endOption);
+}
+
 function getCommits(repo, since, until) {
   repoURL = "https://api.github.com/repos/" + repo + "/";
   commitsQuery = "commits?";
@@ -69,6 +94,10 @@ function specChangeHandler(event) {
   console.log(event);
   var chosenSpec = "whatwg/" + event.target.value;
   console.log("chosenSpec = " + chosenSpec);
-  var commitPromise = getCommits(chosenSpec, "2015-10-01", "2015-11-12");
+  var selectedStartDate = document.getElementById("datestart");
+  var startDate = selectedStartDate.options[selectedStartDate.selectedIndex].text;
+  var selectedEndDate = document.getElementById("dateend");
+  var endDate = selectedEndDate.options[selectedEndDate.selectedIndex].text;
+  var commitPromise = getCommits(chosenSpec, startDate, endDate);
   commitPromise.then(function(commits){addCommitsToPage(commits)});
 }
